@@ -6,8 +6,9 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/node";
-
 import "./tailwind.css";
+import { SidebarProvider } from "@components/ui/sidebar";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -41,5 +42,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  const queryClient = new QueryClient();
+  return (
+    <QueryClientProvider client={queryClient}>
+      <SidebarProvider>
+        <Outlet />
+      </SidebarProvider>
+    </QueryClientProvider>
+  );
 }
