@@ -1,30 +1,49 @@
-import Timetable from "@components/custom/timetable";
 import {
   facilityCategories,
   facilityLocations,
-  FacilType,
-  mockFacilities,
+  mockFacilityBookings,
 } from "@components/data/facilities";
-import { TimetableType } from "@components/types";
-import { Card } from "@components/ui/card";
+import { FacilType, BookType, TimetableType } from "@components/types";
 import { Combobox } from "@components/ui/combobox";
-import { Input } from "@components/ui/input";
+import { Card } from "@/components/ui/card"; // Import Card components
+import { AppContext } from "@contexts/app";
 import { TabsContent } from "@radix-ui/react-tabs";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 export function FacilityTab() {
+  const { setShowBook, setCurShow, book } = useContext(AppContext);
   const [category, setCategory] = useState<string | null>(null);
   const [location, setLocation] = useState<string | null>(null);
-  const [capacity, setCapacity] = useState<string>("");
-  const [isPopoverOpen, setPopoverOpen] = useState<boolean>(false);
-  const [selected, setSelected] = useState<TimetableType[] | null>(null);
-  const [day, setDay] = useState<string | null>(null);
+
+  useEffect(() => {
+    const temp = category && location ? mockFacilityBookings : [];
+    setShowBook(temp);
+    setCurShow(temp);
+  }, [category, location]);
+
+  function handleShowBook() {
+    let update: TimetableType[] = [];
+    book.map((item) => {
+      const addTimetable: TimetableType = {
+        id: item.location,
+        color: item.color,
+        label: item.location + " - " + item.purpose,
+        date: item.date,
+        from: item.time,
+        to: item.time,
+      };
+      update.push(addTimetable);
+    });
+    setShowBook(update);
+    setCurShow(update);
+  }
 
   return (
     <TabsContent
       value="facil"
       className="flex flex-col gap-4 w-full overflow-visible"
     >
+      {/* Form Inputs */}
       <div className="w-full space-y-2">
         <label className="block text-sm font-medium text-gray-700">
           Category
@@ -51,52 +70,47 @@ export function FacilityTab() {
           placeholder="Select Location"
         />
       </div>
-      <div className="w-full space-y-2">
-        <label className="block text-sm font-medium text-gray-700">
-          Capacity
-        </label>
-        <Input
-          type="number"
-          placeholder="Enter Capacity"
-          value={capacity}
-          onChange={(e) => setCapacity(e.target.value)}
-        />
-      </div>
-      {category && location && (
-        <>
-          <h3 className="text-lg font-semibold">Facility Details:</h3>
-          {mockFacilities.map((fac, index) => (
-            <Card
-              key={index}
-              className="p-2 hover:scale-[1.02] transition-all cursor-pointer"
-              onClick={() => {
-                setPopoverOpen(true);
-                const prepFacil: TimetableType[] = [];
-              }}
-            >
-              <div>Status: {fac.status}</div>
-              <div>Available From: {fac.from}</div>
-              <div>Available To: {fac.to}</div>
-              <div>Remarks: {fac.remarks}</div>
-              <div>Access: {fac.access}</div>
-            </Card>
-          ))}
-        </>
-      )}
 
-      {isPopoverOpen && selected && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="relative w-full h-full bg-white flex justify-center items-center">
-            <button
-              className="absolute top-4 right-4 bg-gray-700 text-white px-3 py-1 rounded"
-              onClick={() => setPopoverOpen(false)}
-            >
-              Close
-            </button>
-            <Timetable selected={selected} />
-          </div>
-        </div>
-      )}
+      {/* Bookings Display */}
+      <div className="w-full space-y-4">
+        <h2 className="text-lg font-semibold">Your Bookings</h2>
+        {book.length > 0 ? (
+          <>
+            <div className="text-sm text-gray-600">
+              Click to see your booking timetable
+            </div>
+            {book.map((booking: BookType, index: number) => (
+              <Card
+                key={index}
+                className="p-4 border shadow-md cursor-pointer"
+                onClick={handleShowBook}
+              >
+                <p>
+                  <span className="font-semibold">Location:</span>{" "}
+                  {booking.location || "Unknown"}
+                </p>
+                <p>
+                  <span className="font-semibold">Date:</span> {booking.date}
+                </p>
+                <p>
+                  <span className="font-semibold">Time:</span> {booking.time}{" "}
+                  {booking.time >= 12 ? "PM" : "AM"}
+                </p>
+                <p>
+                  <span className="font-semibold">Purpose:</span>{" "}
+                  {booking.purpose}
+                </p>
+                <p>
+                  <span className="font-semibold">Remarks:</span>{" "}
+                  {booking.remarks || "None"}
+                </p>
+              </Card>
+            ))}
+          </>
+        ) : (
+          <p className="text-sm text-gray-500">No bookings yet.</p>
+        )}
+      </div>
     </TabsContent>
   );
 }

@@ -5,18 +5,15 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@components/ui/resizable";
-import { AppContext } from "@contexts/app";
-import { useContext } from "react";
 
 export default function Index() {
-  const { selected, setSelected } = useContext(AppContext);
   return (
     <ResizablePanelGroup direction="horizontal" className="w-full">
-      <ResizablePanel defaultSize={80}>
-        <Timetable selected={selected} />
+      <ResizablePanel defaultSize={75}>
+        <Timetable />
       </ResizablePanel>
       <ResizableHandle withHandle />
-      <ResizablePanel defaultSize={20}>
+      <ResizablePanel defaultSize={25}>
         <AppSidebar />
       </ResizablePanel>
     </ResizablePanelGroup>

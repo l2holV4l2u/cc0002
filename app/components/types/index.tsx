@@ -1,6 +1,5 @@
 export type TimetableType = {
-  type: string;
-  id: string; // code for course, and specific id for facility
+  id: string;
   color: string;
   label: string;
   date: string;
@@ -21,3 +20,14 @@ export type CourseType = {
     to: number;
   }[];
 };
+
+export type BookType = {
+  location: string;
+  color: string;
+  date: string;
+  time: number;
+  purpose: string;
+  remarks: string;
+};
+
+export type FacilType = { value: string; link?: string; label: string };

@@ -18,7 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { FacilType } from "@components/data/facilities";
+import { FacilType } from "@components/types";
 
 export function Combobox({
   options,

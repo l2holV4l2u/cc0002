@@ -1,3 +1,4 @@
+import { CourseCard } from "@components/custom/coursecard";
 import { courses } from "@components/data/courses";
 import { CourseType, TimetableType } from "@components/types";
 import { Button } from "@components/ui/button";
@@ -10,56 +11,11 @@ import {
 } from "@radix-ui/react-popover";
 import { TabsContent } from "@radix-ui/react-tabs";
 import { Search } from "lucide-react";
-import {
-  Dispatch,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import { HiXMark } from "react-icons/hi2";
-
-function CourseCard({
-  course,
-  setSelectedCourses,
-  selectedCourses,
-}: {
-  course: CourseType;
-  selectedCourses: CourseType[];
-  setSelectedCourses: Dispatch<SetStateAction<CourseType[]>>;
-}) {
-  const removeCourse = (courseCode: string) => {
-    setSelectedCourses(selectedCourses.filter((c) => c.code !== courseCode));
-  };
-
-  return (
-    <div
-      key={course.index}
-      className="flex justify-between items-center p-2 border rounded-lg mb-2 text-sm text-gray-500 bg-white"
-    >
-      <div>
-        <div className="text-base text-gray-800 font-semibold">
-          {course.code}
-        </div>
-        <div>{course.name}</div>
-        <div>Index: {course.index}</div>
-        <div>AU: {course.au}</div>
-      </div>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => removeCourse(course.code)}
-      >
-        <HiXMark size={16} />
-      </Button>
-    </div>
-  );
-}
+import { useContext, useEffect, useRef, useState } from "react";
 
 export function CourseTab() {
-  const { selected, setSelected } = useContext(AppContext);
-  const [selectedCourses, setSelectedCourses] = useState<CourseType[]>([]);
+  const { selectedCourse, setSelectedCourse, setCurShow, setShowCourse } =
+    useContext(AppContext);
   const [search, setSearch] = useState<string>("");
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(true);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -69,39 +25,31 @@ export function CourseTab() {
       course.name.toLowerCase().includes(search.toLowerCase())
   );
   const addCourse = (course: CourseType) => {
-    if (!selectedCourses.some((c) => c.code === course.code)) {
-      setSelectedCourses([...selectedCourses, course]);
+    if (!selectedCourse.some((c) => c.code === course.code)) {
+      setSelectedCourse([...selectedCourse, course]);
     }
     setSearch("");
     setIsPopoverOpen(false);
   };
 
   useEffect(() => {
-    const updatedSelect = [...selected].filter(
-      (val) =>
-        val.type != "course" ||
-        (val.type == "course" &&
-          selectedCourses.some((course) => course.code == val.id))
-    );
-    selectedCourses.map((course) => {
-      if (!updatedSelect.some((val) => val.id == course.code)) {
-        course.schedule.map((schedule) => {
-          const addTimetable: TimetableType = {
-            type: "course",
-            id: course.code,
-            color: course.color,
-            label: course.code + " - " + schedule.type,
-            date: schedule.date,
-            from: schedule.from,
-            to: schedule.to,
-          };
-          updatedSelect.push(addTimetable);
-        });
-      }
+    let update: TimetableType[] = [];
+    selectedCourse.map((course) => {
+      course.schedule.map((schedule) => {
+        const addTimetable: TimetableType = {
+          id: course.code,
+          color: course.color,
+          label: course.code + " - " + schedule.type,
+          date: schedule.date,
+          from: schedule.from,
+          to: schedule.to,
+        };
+        update.push(addTimetable);
+      });
     });
-    console.log(updatedSelect);
-    setSelected(updatedSelect);
-  }, [selectedCourses]);
+    setShowCourse(update);
+    setCurShow(update);
+  }, [selectedCourse]);
 
   return (
     <TabsContent value="course">
@@ -149,13 +97,13 @@ export function CourseTab() {
         {/* Selected Courses */}
         <div>
           <div className="font-medium text-lg mb-2">Selected Courses</div>
-          {selectedCourses.length > 0 ? (
-            selectedCourses.map((course) => (
+          {selectedCourse.length > 0 ? (
+            selectedCourse.map((course) => (
               <CourseCard
                 key={course.code}
                 course={course}
-                selectedCourses={selectedCourses}
-                setSelectedCourses={setSelectedCourses}
+                selectedCourses={selectedCourse}
+                setSelectedCourses={setSelectedCourse}
               />
             ))
           ) : (
