@@ -1,17 +1,24 @@
 import { AppSidebar } from "@components/custom/appsidebar";
 import Timetable from "@components/custom/timetable";
-import { Course } from "@types/course";
-import { useState } from "react";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@components/ui/resizable";
+import { AppContext } from "@contexts/app";
+import { useContext } from "react";
 
 export default function Index() {
-  const [selectedCourses, setSelectedCourses] = useState<Course[]>([]);
+  const { selected, setSelected } = useContext(AppContext);
   return (
-    <div className="flex w-full h-screen">
-      <Timetable selectedCourses={selectedCourses} />
-      <AppSidebar
-        selectedCourses={selectedCourses}
-        setSelectedCourses={setSelectedCourses}
-      />
-    </div>
+    <ResizablePanelGroup direction="horizontal" className="w-full">
+      <ResizablePanel defaultSize={80}>
+        <Timetable selected={selected} />
+      </ResizablePanel>
+      <ResizableHandle withHandle />
+      <ResizablePanel defaultSize={20}>
+        <AppSidebar />
+      </ResizablePanel>
+    </ResizablePanelGroup>
   );
 }

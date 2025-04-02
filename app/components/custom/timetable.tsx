@@ -1,23 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Course } from "@types/course";
+import { TimetableType } from "@components/types";
 
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-const timeSlots = [
-  "9 AM",
-  "10 AM",
-  "11 AM",
-  "12 PM",
-  "1 PM",
-  "2 PM",
-  "3 PM",
-  "4 PM",
-];
 
-export default function Timetable({
-  selectedCourses,
-}: {
-  selectedCourses: Course[];
-}) {
+export default function Timetable({ selected }: { selected: TimetableType[] }) {
   return (
     <div className="p-6 w-full h-full overflow-auto">
       <Card>
@@ -32,71 +18,70 @@ export default function Timetable({
             ))}
 
             {/* Timetable Rows */}
-            {timeSlots.map((slot, rowIndex) => (
-              <div key={`row-${rowIndex}`} className="contents">
-                {/* Time Column */}
-                <div className="font-bold p-2 border-r border-gray-300">
-                  {slot}
-                </div>
+            {Array.from({ length: 16 - 9 }, (_, i) => i + 9).map(
+              (time, rowIndex) => {
+                const displayTime = time > 12 ? time - 12 : time;
+                const period = time >= 12 ? "PM" : "AM";
 
-                {/* Day Columns */}
-                {days.map((day, colIndex) => {
-                  const courseSession = selectedCourses.find((course) =>
-                    course.schedule.some(
-                      (session) =>
-                        session.day === day && session.timeSlots.includes(slot)
-                    )
-                  );
-
-                  // If this slot is the start of a session, calculate rowSpan
-                  if (
-                    courseSession &&
-                    courseSession.schedule.some(
-                      (session) =>
-                        session.day === day && session.timeSlots[0] === slot // Start of a block
-                    )
-                  ) {
-                    const session = courseSession.schedule.find(
-                      (s) => s.day === day && s.timeSlots[0] === slot
-                    );
-                    const rowSpan = session ? session.timeSlots.length : 1;
-
-                    return (
-                      <div
-                        key={`cell-${rowIndex}-${colIndex}`}
-                        className={`border p-2 rounded-md cursor-pointer flex items-center justify-center ${courseSession.color}`}
-                        style={{ gridRow: `span ${rowSpan}` }}
-                      >
-                        {session?.type} - {courseSession.name}
-                      </div>
-                    );
-                  }
-
-                  // If this slot is within a merged session, return null (don't render duplicate cells)
-                  if (
-                    selectedCourses.some((course) =>
-                      course.schedule.some(
-                        (session) =>
-                          session.day === day &&
-                          session.timeSlots.includes(slot) &&
-                          session.timeSlots[0] !== slot
-                      )
-                    )
-                  ) {
-                    return null;
-                  }
-
-                  return (
-                    <div
-                      key={`cell-${rowIndex}-${colIndex}`}
-                      className="border p-2 h-24 rounded-md bg-gray-100 hover:bg-gray-200 cursor-pointer"
-                    >
-                      -
+                return (
+                  <div key={`row-${rowIndex}`} className="contents">
+                    {/* Time Column */}
+                    <div className="font-bold p-2 border-r border-gray-300">
+                      {displayTime}
+                      {period}
                     </div>
-                  );
-                })}
-              </div>
-            ))}
+
+                    {/* Day Columns */}
+                    {days.map((day, colIndex) => {
+                      const session = selected.find(
+                        (val) =>
+                          val.date === day && val.from <= time && time <= val.to
+                      );
+
+                      // If this slot is the start of a session, calculate rowSpan
+                      if (
+                        session &&
+                        selected.some(
+                          (val) => val.date === day && val.from === time
+                        )
+                      ) {
+                        return (
+                          <div
+                            key={`cell-${rowIndex}-${colIndex}`}
+                            className={`border p-2 rounded-md cursor-pointer flex items-center justify-center ${session.color}`}
+                            style={{
+                              gridRow: `span ${session.to - session.from + 1}`,
+                            }}
+                          >
+                            {session.label}
+                          </div>
+                        );
+                      }
+
+                      // If this slot is within a merged session, return null (don't render duplicate cells)
+                      if (
+                        session &&
+                        selected.some(
+                          (val) =>
+                            val.date === day &&
+                            val.from < time &&
+                            time <= val.to
+                        )
+                      ) {
+                        return null;
+                      }
+
+                      return (
+                        <div
+                          key={`cell-${rowIndex}-${colIndex}`}
+                          className="border p-2 h-20 rounded-md bg-gray-100 hover:bg-gray-200 cursor-pointer"
+                        />
+                      );
+                    })}
+                  </div>
+                );
+              }
+            )}
           </div>
         </CardContent>
       </Card>
