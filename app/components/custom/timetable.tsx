@@ -33,6 +33,9 @@ export default function Timetable() {
       remarks,
     };
 
+    setPurpose("");
+    setRemarks("");
+
     setBook([...book, newBooking]); // Update the book state
 
     // Close overlay after submission (or handle differently)

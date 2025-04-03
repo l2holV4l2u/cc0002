@@ -1,4 +1,5 @@
 import { AppSidebar } from "@components/custom/appsidebar";
+import FloatingActionButton from "@components/custom/fab";
 import Timetable from "@components/custom/timetable";
 import {
   ResizableHandle,
@@ -16,6 +17,7 @@ export default function Index() {
       <ResizablePanel defaultSize={25}>
         <AppSidebar />
       </ResizablePanel>
+      <FloatingActionButton />
     </ResizablePanelGroup>
   );
 }

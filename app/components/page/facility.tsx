@@ -5,7 +5,7 @@ import {
 } from "@components/data/facilities";
 import { FacilType, BookType, TimetableType } from "@components/types";
 import { Combobox } from "@components/ui/combobox";
-import { Card } from "@/components/ui/card"; // Import Card components
+import { Card } from "@/components/ui/card";
 import { AppContext } from "@contexts/app";
 import { TabsContent } from "@radix-ui/react-tabs";
 import { useContext, useEffect, useState } from "react";
@@ -20,6 +20,11 @@ export function FacilityTab() {
     setShowBook(temp);
     setCurShow(temp);
   }, [category, location]);
+
+  useEffect(() => {
+    setCategory("");
+    setLocation("");
+  }, [book]);
 
   function handleShowBook() {
     let update: TimetableType[] = [];
