@@ -58,4 +58,17 @@ export const courses: CourseType[] = [
       { type: "Tutorial", date: "Friday", from: 14, to: 14 },
     ],
   },
+  {
+    code: "CC0002",
+    name: "NAVIGATING THE DIGITAL WORLD",
+    index: "10017",
+    au: 3,
+    color: "bg-pink-300",
+    schedule: [
+      { type: "Lecture", date: "Wednesday", from: 10, to: 11 },
+      { type: "Tutorial", date: "Friday", from: 14, to: 14 },
+    ],
+    announce:
+      "https://ntulearn.ntu.edu.sg/ultra/courses/_2670086_1/announcements/announcement-detail?courseId=_2670086_1&announcementId=_634088_1",
+  },
 ];

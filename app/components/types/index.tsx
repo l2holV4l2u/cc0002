@@ -19,6 +19,7 @@ export type CourseType = {
     from: number;
     to: number;
   }[];
+  announce?: string;
 };
 
 export type BookType = {

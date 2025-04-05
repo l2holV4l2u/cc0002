@@ -3,27 +3,33 @@ import { Card, CardContent } from "@/components/ui/card";
 import { days } from "@components/data/date";
 import { AppContext } from "@contexts/app";
 import { useContext } from "react";
-import { BookType, TimetableType } from "@components/types";
+import { BookType, CourseType, TimetableType } from "@components/types";
 
 export default function Timetable() {
-  const { curShow, setBook, book, tab } = useContext(AppContext);
+  const { curShow, setBook, book, tab, selectedCourse, setSelectedCourse } =
+    useContext(AppContext);
   const [overlayVisible, setOverlayVisible] = useState(false);
+  const [courseOverlay, setCourseOverlay] = useState(false);
   const [selectedSession, setSelectedSession] = useState<TimetableType | null>(
     null
   );
+  const [custom, setCustom] = useState<TimetableType | null>(null);
   const [purpose, setPurpose] = useState<string>("");
   const [remarks, setRemarks] = useState<string>("");
 
-  const handleCellClick = (session: TimetableType) => {
+  const handleFacilClick = (session: TimetableType) => {
     setSelectedSession(session);
     setOverlayVisible(true);
   };
 
+  const handleCourseClick = (session: TimetableType) => {
+    setCustom(session);
+    setCourseOverlay(true);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!selectedSession) return;
-
     const newBooking: BookType = {
       location: selectedSession.label,
       color: selectedSession.color,
@@ -32,14 +38,32 @@ export default function Timetable() {
       purpose,
       remarks,
     };
-
     setPurpose("");
     setRemarks("");
-
-    setBook([...book, newBooking]); // Update the book state
-
-    // Close overlay after submission (or handle differently)
+    setBook([...book, newBooking]);
     setOverlayVisible(false);
+  };
+
+  const handleEventSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setCourseOverlay(false);
+    if (!custom) return;
+    const newEvent: CourseType = {
+      code: custom.label,
+      name: custom.label,
+      index: "",
+      au: 0,
+      color: custom.color,
+      schedule: [
+        {
+          type: "Custom",
+          date: custom.date,
+          from: custom.from,
+          to: custom.to,
+        },
+      ],
+    };
+    setSelectedCourse([...selectedCourse, newEvent]);
   };
 
   return (
@@ -94,7 +118,9 @@ export default function Timetable() {
                             style={{
                               gridRow: `span ${session.to - session.from + 1}`,
                             }}
-                            onClick={() => handleCellClick(session)}
+                            onClick={() =>
+                              tab == "facil" && handleFacilClick(session)
+                            }
                           >
                             {session.label}
                           </div>
@@ -113,10 +139,22 @@ export default function Timetable() {
                         return null;
                       }
 
+                      const customEvent: TimetableType = {
+                        id: "custom" + rowIndex + colIndex,
+                        color: "bg-teal-300",
+                        label: "Custom Event",
+                        date: days[colIndex],
+                        from: time,
+                        to: time,
+                      };
+
                       return (
                         <div
                           key={`cell-${rowIndex}-${colIndex}`}
                           className="border p-2 h-20 rounded-md bg-gray-100 hover:bg-gray-200 cursor-pointer"
+                          onClick={() =>
+                            tab == "course" && handleCourseClick(customEvent)
+                          }
                         />
                       );
                     })}
@@ -128,10 +166,10 @@ export default function Timetable() {
         </CardContent>
       </Card>
 
-      {/* Overlay */}
+      {/* Facil Overlay */}
       {overlayVisible && selectedSession && (
         <div
-          className="fixed top-0 left-0 w-full h-full bg-opacity-50 bg-black flex items-center justify-center"
+          className="fixed z-50 top-0 left-0 w-full h-full bg-opacity-50 bg-black flex items-center justify-center"
           onClick={() => setOverlayVisible(false)}
         >
           <div
@@ -192,6 +230,53 @@ export default function Timetable() {
                   type="button"
                   className="px-4 py-2 bg-gray-300 text-black rounded"
                   onClick={() => setOverlayVisible(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Course Overlay */}
+      {courseOverlay && custom && (
+        <div
+          className="fixed z-50 top-0 left-0 w-full h-full bg-opacity-50 bg-black flex items-center justify-center"
+          onClick={() => setCourseOverlay(false)}
+        >
+          <div
+            className="bg-white p-6 rounded-lg shadow-lg w-96"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-xl font-bold mb-4">Create Custom Event</h2>
+            <form onSubmit={handleEventSubmit} className="flex flex-col gap-4">
+              <label className="block">
+                <span className="font-semibold">Event Name*</span>
+                <input
+                  type="text"
+                  className="w-full p-2 border rounded bg-white"
+                  value={custom?.label}
+                  onChange={(e) =>
+                    setCustom({
+                      ...custom,
+                      label: e.target.value,
+                    } as TimetableType)
+                  }
+                  required
+                />
+              </label>
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-gray-300 text-black rounded"
+                  onClick={() => setCourseOverlay(false)}
                 >
                   Cancel
                 </button>

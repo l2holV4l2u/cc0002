@@ -53,27 +53,25 @@ export function CourseTab() {
 
   return (
     <TabsContent value="course">
-      <div className="flex flex-col gap-4">
-        {/* Search Bar with Popover */}
-        <Popover open={isPopoverOpen}>
-          <PopoverTrigger className="w-full">
-            <div className="flex items-center border rounded-lg overflow-hidden">
-              <Input
-                placeholder="Search"
-                className="flex-grow px-2 outline-none focus:ring-0 focus:border-transparent"
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setIsPopoverOpen(true);
-                }}
-              />
-              <Button variant="ghost" className="p-2">
-                <Search size={18} />
-              </Button>
-            </div>
-          </PopoverTrigger>
-          <PopoverContent
-            className={`w-full p-2 bg-white shadow-lg border rounded-lg ${
+      <div className="flex flex-col gap-4 relative">
+        <div className="flex items-center border rounded-lg overflow-hidden">
+          <Input
+            placeholder="Search"
+            className="flex-grow px-2 outline-none focus:ring-0 focus:border-transparent"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setIsPopoverOpen(true);
+            }}
+          />
+          <Button variant="ghost" className="p-2">
+            <Search size={18} />
+          </Button>
+        </div>
+        {/* Popover */}
+        {isPopoverOpen && (
+          <div
+            className={`w-96 fixed top-32 right-4 p-2 z-40 bg-white shadow-lg border rounded-lg ${
               !isPopoverOpen ? "hidden" : ""
             }`}
             ref={popoverRef}
@@ -91,8 +89,8 @@ export function CourseTab() {
             ) : (
               <div className="text-gray-500 p-2">No courses found</div>
             )}
-          </PopoverContent>
-        </Popover>
+          </div>
+        )}
 
         {/* Selected Courses */}
         <div>
